@@ -1,0 +1,327 @@
+```
+函数    线程号    行号    注释
+```
+io.netty.channel.nio.SelectedSelectionKeySet.contains    18    103    //这个函数总是返回false。netty不需要nio底层处理这个函数为true的情况。
+io.netty.channel.nio.SelectedSelectionKeySet.add    18    38    //把selectionkey放到selector的selectedKeys中。每个channel对应一个selectionkey，每个selectionkey包含多个channel感兴趣的事件，当channel对应的fd（和selectionkey有映射关系）中发生感兴趣的事件的时候，把selectionkey放到selector的selectedKeys中        
+io.netty.channel.nio.AbstractNioChannel.unsafe    18    108    //返回通道（当前场景中为NioServerSocketChannel）NioUnsafe类。NioUnsafe是JDK NIO ServerSocketChannel的unsafe的封装，网络操作比如绑定端口，监听连接都通过NioUnsafe进行,返回通道的unsafe就是准备读数据了。            
+io.netty.channel.AbstractChannel.unsafe    18    279    //略
+io.netty.channel.socket.nio.NioServerSocketChannel.config    18    100    //获取channel的配置。
+io.netty.channel.DefaultChannelConfig.isAutoRead    18    274    //判断读数据后是否触发读事件以便源源不断的读数据                
+io.netty.channel.DefaultChannelConfig.getMaxMessagesPerRead    18    217    //返回每次能读取的信息数
+io.netty.channel.AbstractChannel.pipeline    18    99    //获取NioServerSocketChannel的pipeline。下面要在pipeline中传播事件，所以这里先获取pipeline。
+io.netty.channel.socket.nio.NioServerSocketChannel.doReadMessages    18    135    //读取message到给定的数组中。这个函数用accept建立连接后，把一个NioSocketChannel当成message给到指定的定数组中。        
+io.netty.channel.socket.nio.NioServerSocketChannel.javaChannel    18    115    //获取netty的channel（这里是NioServerSocketChannel）代表的Nio的channel（这里是ServerSocketChannel）
+io.netty.channel.nio.AbstractNioChannel.javaChannel    18    112    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    18    62    //FastThreadLocal是netty自己实现的ThreadLocal，全局的FastThreadLocalThread类型的threadLocalMap在每个线程中都有自己的实例。当前场景下用于netty自己实现的ThreadLocalRandom。
+io.netty.util.internal.InternalThreadLocalMap.random    18    210    //获取全局随机数。java.util.Random存在多线程竞争，netty结合自己实现的ThreadLocal实现了自己的Random，每个线程获取Random都不会影响其他线程。
+io.netty.util.internal.ThreadLocalRandom.setSeed    18    225
+io.netty.util.internal.ThreadLocalRandom.next    18    232    //略
+io.netty.util.internal.ThreadLocalRandom.next    18    232    //略
+io.netty.channel.socket.nio.NioSocketChannel.newUnsafe    18    330    //执行到这里，已经发现并处理了OP_ACCEPT事件，对于新的连接，要启动一个新的通道NioSocketChannel，这里new一个Nio的unsafe给NioSocketChannel，没有这个东西通道是读不了数据的
+io.netty.channel.DefaultChannelPipeline.channel    18    85    //略
+io.netty.channel.nio.AbstractNioChannel.unsafe    18    108        //略
+io.netty.channel.AbstractChannel.unsafe    18    279    //略
+io.netty.channel.socket.DefaultSocketChannelConfig.setTcpNoDelay    18    254    //设置channel对应的socket为TcpNoDelay，禁用Nagle算法        
+io.netty.channel.DefaultChannelConfig.isAutoRead    18    274    //略
+io.netty.channel.socket.nio.NioServerSocketChannel.doReadMessages    18    135    //略
+io.netty.channel.socket.nio.NioServerSocketChannel.javaChannel    18    115    //略
+io.netty.channel.nio.AbstractNioChannel.javaChannel    18    112    //略
+io.netty.channel.nio.AbstractNioChannel.setReadPending    18    133    //设置ReadPending，selectionkey会失去对读事件的兴趣。
+io.netty.channel.DefaultChannelPipeline.fireChannelRead    18    846    //触发事件在pipeline的handler传播。在当前的场景中，传播的是doReadMessages读回来的信息，主要由pipeline中的ServerBootstrapAcceptor处理读事件，核心的任务给新的通道加上childHandler,childHandler可以用于channel的初始化，给channel添加用户定义的handler
+io.netty.channel.AbstractChannelHandlerContext.fireChannelRead    18    297 //这里的fireChannelRead是pipeline（ServerSocketChannel的pipeline）的head context的fireChannelRead，它会调用head的下一个handler（这里是ServerBootstrapAcceptor，专门处理网络连接的handler）处理读事件的函数，下一个handler就是在bind的过程中准备好的ServerBootstrapAcceptor，读事件传播到这里的时候它会把doReadMessages返回的channel注册（作为一个异步请求）到一个workgroup的eventloop中
+io.netty.channel.AbstractChannelHandlerContext.executor    18    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    18    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    18    117    //略
+io.netty.channel.AbstractChannel.eventLoop    18    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    18    35    //返回传播到的当前节点handler。fireChannelRead调用next.invokeChannelRead()传播信息，接收到信息的handler调用它的读事件处理函数channelRead处理信息，所以要获取handler的句柄。
+io.netty.channel.AbstractChannel.pipeline    18    99    //略
+io.netty.channel.DefaultChannelPipeline.addLast    18    244    //给新通道加一个handler。这个handler会处理新通道的注册完成事件，到时候会把用户自定义的handler添加到新通道中。
+io.netty.channel.DefaultChannelPipeline.addLast    18    249    //略
+io.netty.channel.DefaultChannelPipeline.addLast    18    125    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    18    35    //略
+io.netty.channel.ChannelHandlerAdapter.isSharable    18    45    //判断一个handler实例对象是否可以在多个通道中使用。
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    18    62    //略。
+io.netty.util.internal.InternalThreadLocalMap.handlerSharableCache    18    242    //每个eventloop都有一个threadLocalMap实例，里面有个handlerSharableCache保存了那些可以给多个通道共享的handler。
+io.netty.channel.AbstractChannelHandlerContext.channel    18    97    //略
+io.netty.channel.AbstractChannel.isRegistered    18    157    //判断通道是否已经注册。
+io.netty.channel.DefaultChannelHandlerContext.handler    18    35    //略
+io.netty.channel.ChannelHandlerAdapter.handlerAdded    18    61    //运行到这里通道已经添加到pipeline中，回调handler实现handlerAdded，不过在当前情景中新添加的handler的这个函数是空的。
+io.netty.channel.socket.nio.NioSocketChannel.config    18    112    //略
+io.netty.channel.socket.DefaultSocketChannelConfig.setOption    18    102    //设置channel的配置。运行到这里，负责初始化新通道的handler已经添加到pipelie中，可以初始化channel的其它配置了。
+io.netty.channel.DefaultChannelConfig.validate    18    204
+io.netty.channel.ChannelOption.validate    18    144    //略
+io.netty.channel.socket.DefaultSocketChannelConfig.setKeepAlive    18    203
+io.netty.channel.MultithreadEventLoopGroup.register    18    64    //把新通道注册到workGroup的一个eventloop中
+io.netty.channel.MultithreadEventLoopGroup.next    18    59    //获取一个空闲的eventloop
+io.netty.util.concurrent.MultithreadEventExecutorGroup.next    18    110    //略
+io.netty.channel.SingleThreadEventLoop.register    18    48    //略
+io.netty.channel.SingleThreadEventLoop.register    18    53    //略
+io.netty.channel.nio.AbstractNioChannel.unsafe    18    108    //略
+io.netty.channel.AbstractChannel.unsafe    18    279    //略。unsafe有register接口，是真正处理注册逻辑的地方
+io.netty.channel.AbstractChannel.isRegistered    18    157    //判断channel是否已经注册。一个channel只能注册到一个eventloop。
+io.netty.channel.nio.AbstractNioChannel.isCompatible    18    328    //判断当前的eventloop是不是真的是eventloop。什么情况下才不是？
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.execute    18    682    //把注册当成一个异步请求送给新起的eventloop处理
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.util.internal.UnsafeAtomicIntegerFieldUpdater.compareAndSet    18    39    //修改eventloop绑定的线程的状态
+io.netty.util.concurrent.SingleThreadEventExecutor.addTask    18    296    //eventloop的taskqueue中添加任务。这里是在新起的eventloop的taskqueue中添加register任务
+io.netty.util.concurrent.SingleThreadEventExecutor.isShutdown    18    602    //判断eventloop绑定的线程是否已经退出。在添加task到任务队列之前要先判断一下eventloop绑定的线程停止运行了没有。
+io.netty.util.internal.MpscLinkedQueue.add    18    218    //略
+io.netty.util.internal.MpscLinkedQueue.offer    18    114    //略    
+io.netty.util.internal.MpscLinkedQueueTailRef.getAndSetTailRef    18    52        //略
+io.netty.util.internal.UnsafeAtomicReferenceFieldUpdater.get    18    60    //略
+io.netty.util.internal.UnsafeAtomicReferenceFieldUpdater.compareAndSet    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.updateLastExecutionTime    20    405    //更新最后一次执行任务的时间。
+io.netty.util.concurrent.SingleThreadEventExecutor.isShutdown    18    602    //判断eventloop绑定的线程是否已经退出。在添加task到任务队列之前要先判断一下eventloop绑定的线程停止运行了没有。
+io.netty.channel.nio.NioEventLoop.run    20    305    //新起的eventlooploop正式启动
+io.netty.channel.SingleThreadEventLoop.wakesUpForTask    18    66    //判断要不要唤醒处于select阻塞状态的eventloop（其实是唤醒eventloop对应的线程）。NonWakeupRunnable类型的task添加到taskqueue之后是不需要唤醒的。
+io.netty.channel.nio.NioEventLoop.wakeup    18    590    //给新起的eventloop加一个WAKEUP_TASK任务
+io.netty.util.internal.MpscLinkedQueueHeadRef.lazySetHeadRef    20    52    //略。运行到这里，新起的eventloop开始工作了，从taskqueue中取任务了
+io.netty.util.internal.MpscLinkedQueueNode.clearMaybe    20    56    //略。MpscLinkedQueue太底层了，这里不讨论
+io.netty.util.internal.OneTimeTask.value    20    30    //返回OneTimeTask对象。上面提到的clearMaybe就是封装这个函数而已
+io.netty.util.concurrent.DefaultPromise.setUncancellable    20    456    //设置禁止取消异步操作。由于当前正处于注册通道的异步请求处理中，如果取消异步操作通道就无法注册，上面做事都白做了。
+io.netty.channel.nio.AbstractNioChannel.isOpen    20    103    //判断通道是否打开。如果不打开是不能注册的
+io.netty.channel.nio.AbstractNioChannel.doRegister    20    333    //通道注册到eveltloop的selector，同时生成代表通道感兴趣的事件的selectionKey
+io.netty.channel.socket.nio.NioSocketChannel.javaChannel    20    117    //略
+io.netty.channel.nio.AbstractNioChannel.javaChannel    20    112    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略。这里获取eventLoop的目的是想获取它里面的selector
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.channel.DefaultChannelPromise.trySuccess    20    82     //设置promise的结果为success。表示通道注册这个异步事件已经成功了
+io.netty.util.concurrent.DefaultPromise.trySuccess    20    405    //略
+io.netty.util.concurrent.DefaultPromise.isDone    20    106    //判断对应promise的异步请求是不是已经处理完了。这里处于trySuccess的过程中，如果isDone就不要在设置promise对应的事件的处理结果了，因为只允许设置一次
+io.netty.util.concurrent.DefaultPromise.isDone    20    106    //略
+io.netty.channel.DefaultChannelPipeline.fireChannelRegistered    20    733    //触发完成注册这个事情在pipeline中的传播。
+io.netty.channel.AbstractChannelHandlerContext.fireChannelRegistered    20    126 //略
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略。context负责传播，具体的事件还是由context对应的handler处理的，所以要context对应的handler
+io.netty.channel.ChannelInitializer.channelRegistered    20    68    //处理已注册事件。ChannelInitializer（用户自定义的handler）是主线程初始化新连接的socket对应的channel的时候放到channel的pipeline中的，这里的ChannelInitializer主要的工作是给pipieline加上用户自定义的handler
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略。当前情景下返回的是要初始化的channel
+io.netty.channel.AbstractChannel.pipeline    20    99    //略
+io.netty.channel.DefaultChannelPromise.addListener    18    93    //添加promise的监听器。上面的一些关于注册的操作是在新起的eventloop中执行的，主线程向新起的eventloop发起注册通道的请求之后就切换过去执行了，到这里重新切换回来，为这个请求对应的promise加监听器，这也是为什么在添加监听器的过程中要判断请求是否isDone的原因。
+io.netty.util.concurrent.DefaultPromise.addListener    18    133    //略
+io.netty.util.concurrent.DefaultPromise.isDone    18    106    //略
+io.netty.channel.DefaultChannelPromise.executor    18    56    //略
+io.netty.util.concurrent.DefaultPromise.executor    18    87    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.execute    18    682    //当前正在主线程中，而promise承诺应该是新起的eventloop完成，完成承诺的时候的回调也应该eventloop完成，所以这里把一个LateListenerNotifier加到新起的eventloop的任务队列中，让它late一点再notifyListener
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.addTask    18    296    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.isShutdown    18    602    //略
+io.netty.util.internal.MpscLinkedQueue.add    18    218    //略
+io.netty.util.internal.MpscLinkedQueue.offer    18    114    //略
+io.netty.util.internal.MpscLinkedQueueTailRef.getAndSetTailRef    18    52    //略
+io.netty.util.internal.UnsafeAtomicReferenceFieldUpdater.get    18    60    //略
+io.netty.util.internal.UnsafeAtomicReferenceFieldUpdater.compareAndSet    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.isShutdown    18    602    //略
+io.netty.channel.SingleThreadEventLoop.wakesUpForTask    18    66    //略
+io.netty.channel.nio.NioEventLoop.wakeup    18    590    //略
+io.netty.channel.DefaultChannelPipeline.fireChannelReadComplete    18    852    //触发“读完成”事件
+io.netty.channel.AbstractChannelHandlerContext.fireChannelReadComplete    18    326    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    18    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    18    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    18    117        //略    
+io.netty.channel.AbstractChannel.eventLoop    18    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    18    35    //略
+io.netty.channel.ChannelInboundHandlerAdapter.channelReadComplete    18    97    //handler处理“读完成”事件。当前通道（主线程中的ServerSocketChannel）中实际上只有一个handler（ServerBootstrapAcceptor），这个handler的channelReadComplete什么都不做，只是把事件传播到tail context中
+io.netty.channel.AbstractChannelHandlerContext.fireChannelReadComplete    18    326    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    18    1126    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    18    976    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    18    117    //略
+io.netty.channel.AbstractChannel.eventLoop    18    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.channel.socket.nio.NioServerSocketChannel.config    18    100        //略
+io.netty.channel.DefaultChannelConfig.isAutoRead    18    274    //略
+io.netty.channel.DefaultChannelPipeline.read    18    933    //为pipeline读数据
+io.netty.channel.AbstractChannelHandlerContext.read    18    592    //这里其实是通过head context用channel的unsafe到网络中读数据
+io.netty.channel.AbstractChannelHandlerContext.executor    18    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    18    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    18    117    //略
+io.netty.channel.AbstractChannel.eventLoop    18    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    18    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    18    428    //略
+io.netty.channel.socket.nio.NioServerSocketChannel.isActive    18    105    //判断通道是否处于激活状态。当前处于读数据的过程中，如果这个时候通道已经不激活了，数据读回来也没办法处理。
+io.netty.channel.socket.nio.NioServerSocketChannel.javaChannel    18    115    //略
+io.netty.channel.nio.AbstractNioChannel.javaChannel    18    112    //略
+io.netty.channel.nio.AbstractNioChannel.doBeginRead    18    361    //这里其实简单的让通道的selectionkey重新对读事件产生兴趣
+io.netty.channel.DefaultChannelConfig.isAutoRead    18    274    //略。执行到这里，主线程对于连接请求的处理已经接近尾声了，接下来的函数和主线程没什么关系了
+io.netty.channel.nio.AbstractNioChannel.isOpen    18    103    //略
+io.netty.channel.ChannelHandlerAdapter.isSharable    20    45    //这里处于给新通道添加用户自定义的handler的过程中new 自定义handler的阶段，有些handler比如ByteToMessageDecoder类型的handler是不允许在多个通道中共享的。
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62    //略
+io.netty.util.concurrent.FastThreadLocalThread.setThreadLocalMap    20    70    //略
+io.netty.util.internal.InternalThreadLocalMap.handlerSharableCache    20    242    //略
+io.netty.channel.DefaultChannelPipeline.addLast    20    120    //把handler添加到通道
+io.netty.channel.DefaultChannelPipeline.addLast    20    1252    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    352    //略
+io.netty.channel.ChannelHandlerAdapter.isSharable    20    452    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    622    //略
+io.netty.util.internal.InternalThreadLocalMap.handlerSharableCache    20    2422    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    972    //略
+io.netty.channel.AbstractChannel.isRegistered    20    157    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.ChannelHandlerAdapter.handlerAdded    20    61    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62    //略
+io.netty.util.internal.InternalThreadLocalMap.typeParameterMatcherFindCache    20    226    //检测handler的类型
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62    //略
+io.netty.util.internal.InternalThreadLocalMap.typeParameterMatcherGetCache    20    218    //略
+io.netty.channel.DefaultChannelPipeline.addLast    20    120        //略
+io.netty.channel.DefaultChannelPipeline.addLast    20    125    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.ChannelHandlerAdapter.isSharable    20    45    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62    //略
+io.netty.util.internal.InternalThreadLocalMap.handlerSharableCache    20    242    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.AbstractChannel.isRegistered    20    157    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112 //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.ChannelHandlerAdapter.handlerAdded    20    61    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62        //略
+io.netty.util.internal.InternalThreadLocalMap.typeParameterMatcherFindCache    20    226    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62    //略
+io.netty.util.internal.InternalThreadLocalMap.typeParameterMatcherGetCache    20    218    //略
+io.netty.channel.DefaultChannelPipeline.addLast    20    244    //略
+io.netty.channel.DefaultChannelPipeline.addLast    20    249    //略
+io.netty.channel.DefaultChannelPipeline.addLast    20    125    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.ChannelHandlerAdapter.isSharable    20    45    //略
+io.netty.util.concurrent.FastThreadLocalThread.threadLocalMap    20    62    //略
+io.netty.util.internal.InternalThreadLocalMap.handlerSharableCache    20    242    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.AbstractChannel.isRegistered    20    157    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.ChannelHandlerAdapter.handlerAdded    20    61    //略
+io.netty.channel.AbstractChannelHandlerContext.pipeline    20    102    //略
+io.netty.channel.DefaultChannelPipeline.remove    20    299    //到这里，新通道的handler已经准备好，用于初始化的handler已经完成了通道注册事件的处理，可以把它删掉了
+io.netty.channel.DefaultChannelPipeline.context    20    632    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.AbstractChannel.isRegistered    20    157    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    //略
+io.netty.channel.AbstractChannelHandlerContext.name    20    121    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.AbstractChannel.isRegistered    20    157    //略
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    //略
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    //略
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    //略
+io.netty.channel.AbstractChannel.eventLoop    20    109    //略
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    //略
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    //略
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    //略
+io.netty.channel.ChannelHandlerAdapter.handlerRemoved    20    69    //略。删除通道后的回调handler的函数，和handlerAdd类似，用于初始化的handler的这些函数都是空函数
+io.netty.channel.AbstractChannelHandlerContext.fireChannelRegistered    20    126    //触发通道注册完成事件。执行到这里，上面添加到新通道的用户自定义handler已经可以处理这个事件了。到这里为止，新建连接相关的核心流程都已经涉及，下面的函数就不介绍了
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112        
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    
+io.netty.channel.AbstractChannel.eventLoop    20    109    
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    
+io.netty.channel.ChannelInboundHandlerAdapter.channelRegistered    20    42    
+io.netty.channel.AbstractChannelHandlerContext.fireChannelRegistered    20    126    
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    
+io.netty.channel.AbstractChannel.eventLoop    20    109    
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35    
+io.netty.channel.ChannelInboundHandlerAdapter.channelRegistered    20    42    
+io.netty.channel.AbstractChannelHandlerContext.fireChannelRegistered    20    126    
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112    
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97    
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117    
+io.netty.channel.AbstractChannel.eventLoop    20    109    
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39    
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428    
+io.netty.channel.socket.nio.NioSocketChannel.isActive    20    122
+io.netty.channel.socket.nio.NioSocketChannel.javaChannel    20    117
+io.netty.channel.nio.AbstractNioChannel.javaChannel    20    112
+io.netty.channel.DefaultChannelPipeline.fireChannelActive    20    817
+io.netty.channel.AbstractChannelHandlerContext.fireChannelActive    20    176
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117
+io.netty.channel.AbstractChannel.eventLoop    20    109
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35
+io.netty.channel.ChannelInboundHandlerAdapter.channelActive    20    64
+io.netty.channel.AbstractChannelHandlerContext.fireChannelActive    20    176
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117
+io.netty.channel.AbstractChannel.eventLoop    20    109
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35
+io.netty.channel.ChannelInboundHandlerAdapter.channelActive    20    64
+io.netty.channel.AbstractChannelHandlerContext.fireChannelActive    20    176
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117
+io.netty.channel.AbstractChannel.eventLoop    20    109
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428
+io.netty.channel.socket.nio.NioSocketChannel.config    20    112
+io.netty.channel.DefaultChannelConfig.isAutoRead    20    274
+io.netty.channel.AbstractChannel.read    20    228
+io.netty.channel.DefaultChannelPipeline.read    20    933
+io.netty.channel.AbstractChannelHandlerContext.read    20    592
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117
+io.netty.channel.AbstractChannel.eventLoop    20    109
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428
+io.netty.channel.DefaultChannelHandlerContext.handler    20    35
+io.netty.channel.ChannelOutboundHandlerAdapter.read    20    93
+io.netty.channel.AbstractChannelHandlerContext.read    20    592
+io.netty.channel.AbstractChannelHandlerContext.executor    20    112
+io.netty.channel.AbstractChannelHandlerContext.channel    20    97
+io.netty.channel.nio.AbstractNioChannel.eventLoop    20    117
+io.netty.channel.AbstractChannel.eventLoop    20    109
+io.netty.util.concurrent.AbstractEventExecutor.inEventLoop    20    39
+io.netty.util.concurrent.SingleThreadEventExecutor.inEventLoop    20    428
+io.netty.channel.socket.nio.NioSocketChannel.isActive    20    122
+io.netty.channel.socket.nio.NioSocketChannel.javaChannel    20    117
+io.netty.channel.nio.AbstractNioChannel.javaChannel    20    112
+io.netty.channel.nio.AbstractNioChannel.doBeginRead    20    361
+io.netty.util.internal.MpscLinkedQueueHeadRef.lazySetHeadRef    20    52
+io.netty.channel.DefaultChannelPromise.executor    20    56
+io.netty.util.concurrent.DefaultPromise.executor    20    87
+io.netty.util.concurrent.DefaultPromise.isSuccess    20    115
