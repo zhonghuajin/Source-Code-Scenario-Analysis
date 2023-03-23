@@ -1,0 +1,13 @@
+getCommand at t_string.c
+getGenericCommand at t_string.c
+lookupKeyReadOrReply at db.c
+lookupKeyRead at db.c
+lookupKeyReadWithFlags at db.c
+expireIfNeeded at db.c
+keyIsExpired at db.c
+getExpire at db.c
+lookupKey at db.c
+dictSdsHash at t_zset.c
+dictGenHashFunction at dict.c
+siphash at siphash.c
+dictSdsKeyCompare at t_zset.c
