@@ -1,4 +1,4 @@
-观察版本：2.4.2
+观察版本：2.3.0
 
 VUE使用示例：https://www.runoob.com/vue2/vue-start.html
 
